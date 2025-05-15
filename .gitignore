@@ -1,0 +1,17 @@
+# Node backend
+/stock-analysis-backend/node_modules
+/stock-analysis-backend/.env
+/stock-analysis-backend/dist
+/stock-analysis-backend/coverage
+
+# React frontend
+/stock-dashboard/node_modules
+/stock-dashboard/.env
+/stock-dashboard/build
+
+# OS & Editor specific
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

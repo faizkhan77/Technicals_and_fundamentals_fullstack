@@ -1,0 +1,39 @@
+/* src/App.css */
+.app {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.tabs {
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.stock-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stock-item {
+  margin: 10px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 200px;
+  text-align: left;
+}
+
+.stock-item h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+}
+
+.stock-item p {
+  margin: 5px 0;
+}
