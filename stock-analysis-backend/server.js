@@ -1,6 +1,6 @@
 const express = require("express");
 const getStockData = require("./analyzeStocks");
-const fundamentalsRouter = require("./fundamentals"); // Add this line to import the fundamentals router
+const fundamentalsRouter = require("./fundamentals");
 const cors = require("cors");
 
 const app = express();
@@ -10,7 +10,24 @@ app.use(cors());
 
 app.get("/api/stock-decisions", async (req, res) => {
   try {
-    const data = await getStockData();
+    // Extract selectedIndicators from query parameters
+    const selectedIndicators = req.query.selectedIndicators
+      ? req.query.selectedIndicators.split(",")
+      : [
+          "RSI",
+          "EMA",
+          "SMA",
+          "MACD",
+          "ADX",
+          "Supertrend",
+          "BollingerBands",
+          "VWAP",
+          "WilliamsR",
+          "PSAR",
+          "Ichimoku",
+          "ATR",
+        ];
+    const data = await getStockData(selectedIndicators);
     res.json(data);
   } catch (err) {
     console.error("Error:", err);
@@ -18,7 +35,6 @@ app.get("/api/stock-decisions", async (req, res) => {
   }
 });
 
-// Add the fundamentals endpoint by mounting the router
 app.use("/api/fundamentals", fundamentalsRouter);
 
 app.listen(PORT, () =>

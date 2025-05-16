@@ -12,7 +12,22 @@ const {
   calculateIchimokuCloud,
 } = require("./indicators.js");
 
-async function getStockData() {
+async function getStockData(
+  selectedIndicators = [
+    "RSI",
+    "EMA",
+    "SMA",
+    "MACD",
+    "ADX",
+    "Supertrend",
+    "BollingerBands",
+    "VWAP",
+    "WilliamsR",
+    "PSAR",
+    "Ichimoku",
+    "ATR",
+  ]
+) {
   try {
     const [rows] = await pool.query(`
    SELECT 
@@ -417,7 +432,6 @@ LIMIT 50000;
         "Strong Sell": -2,
       };
 
-      // Weights: Trend indicators (EMA, SMA, Ichimoku, Supertrend) = 1.5, Momentum (RSI, MACD, WilliamsR, ATR) = 1, Others (ADX, Bollinger, VWAP, PSAR) = 1
       const weights = {
         RSI: 1,
         EMA: 1.5,
@@ -433,22 +447,33 @@ LIMIT 50000;
         ATR: 1,
       };
 
-      const totalScore = Object.entries(indicatorDecisions).reduce(
-        (sum, [indicator, decision]) =>
-          sum + (decisionScores[decision] || 0) * weights[indicator],
-        0
-      );
+      // Only consider selected indicators for the total score
+      const totalScore = Object.entries(indicatorDecisions)
+        .filter(([indicator]) => selectedIndicators.includes(indicator))
+        .reduce(
+          (sum, [indicator, decision]) =>
+            sum + (decisionScores[decision] || 0) * weights[indicator],
+          0
+        );
+
       let decision = "Neutral";
-      if (totalScore >= 1.5) decision = "Strong Buy";
-      else if (totalScore >= 0.5) decision = "Buy";
-      else if (totalScore <= -1.5) decision = "Strong Sell";
-      else if (totalScore <= -0.5) decision = "Sell";
+      if (selectedIndicators.length === 0) {
+        decision = "Neutral"; // Default to Neutral if no indicators selected
+      } else if (totalScore >= 1.5) {
+        decision = "Strong Buy";
+      } else if (totalScore >= 0.5) {
+        decision = "Buy";
+      } else if (totalScore <= -1.5) {
+        decision = "Strong Sell";
+      } else if (totalScore <= -0.5) {
+        decision = "Sell";
+      }
 
       // Debug: Log decision and score
       console.log(
         `Stock ${scripcode}: Decision=${decision}, Score=${totalScore.toFixed(
           2
-        )}, IndicatorDecisions=`,
+        )}, SelectedIndicators=${selectedIndicators}, IndicatorDecisions=`,
         indicatorDecisions
       );
 
@@ -505,6 +530,7 @@ LIMIT 50000;
         latestATR: latestATR !== null ? Number(latestATR.toFixed(2)) : null,
         decision,
         indicatorDecisions,
+        selectedIndicators, // Include selected indicators in the response
         latestDate,
         ema9,
         sma20,

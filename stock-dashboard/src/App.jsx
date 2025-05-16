@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import StockTabs from "./components/StockTabs";
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { Link } from "react-router-dom";
 
 const App = () => {
   const [stocks, setStocks] = useState([]);
@@ -28,8 +28,19 @@ const App = () => {
     const fetchStocks = async () => {
       try {
         setLoading(true);
+        // Create array of selected indicators
+        const selectedIndicators = Object.keys(visibleIndicators).filter(
+          (indicator) => visibleIndicators[indicator]
+        );
+
+        // Send GET request with selectedIndicators as query parameter
         const response = await axios.get(
-          "http://localhost:3000/api/stock-decisions"
+          "http://localhost:3000/api/stock-decisions",
+          {
+            params: {
+              selectedIndicators: selectedIndicators.join(","),
+            },
+          }
         );
         const validStocks = response.data.filter(
           (stock) =>
@@ -45,7 +56,7 @@ const App = () => {
       }
     };
     fetchStocks();
-  }, []);
+  }, [visibleIndicators]);
 
   const filteredStocks = stocks.filter((stock) => {
     const symbol = stock.symbol || "";
@@ -155,21 +166,10 @@ const App = () => {
               onStockSelect={handleStockSelect}
               visibleIndicators={visibleIndicators}
             />
-
-            {/* Stock Chart */}
-            {selectedStock && (
-              <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-                <StockChart
-                  stock={selectedStock}
-                  onClose={() => setSelectedStock(null)}
-                />
-              </div>
-            )}
           </>
         )}
       </main>
     </div>
   );
 };
-
 export default App;
